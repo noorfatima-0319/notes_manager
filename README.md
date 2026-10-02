@@ -3,8 +3,8 @@
 A Flutter Notes app built for the Week 2 internship task — **State Management,
 Forms & Local Storage** — at DawoodTech NextGen.
 
-**Live Demo:** <add your live demo link here>
-**GitHub Repository:** <add your repo link here>
+**Live Demo:** https://noorfatima-0319.github.io/notes_manager/
+**GitHub Repository:** https://github.com/noorfatima-0319/notes_manager
 
 ## Objective
 

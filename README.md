@@ -19,11 +19,11 @@ a dynamic, searchable, filterable list.
 - Form validation (required fields, minimum length, character counters)
 - Notes persist locally using `shared_preferences`, so they remain after
   closing the app
-- Sort notes by Newest, Oldest or Title (A-Z)
 - Dedicated search screen with its own text search and category filters
 - Empty states and a delete confirmation dialog
 - Dark mode toggle (saved locally)
 - Responsive layout with reusable widgets
+- The detail screen reads the live note from the provider by id, so edits appear immediately.
 
 ## Concepts Applied
 
@@ -37,8 +37,8 @@ a dynamic, searchable, filterable list.
 - **CRUD operations:** add, edit, delete and read notes, all persisted
 - **Dynamic lists with search:** `ListView.builder`/`separated` combined
   with live filtering by text and category
-- The detail screen reads the live note from the provider by id, so edits appear immediately.
 - Navigation uses named routes defined in MaterialApp (AppRoutes), with Provider for state management.
+
 
 ## Project Structure
 

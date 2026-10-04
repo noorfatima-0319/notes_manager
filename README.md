@@ -37,6 +37,8 @@ a dynamic, searchable, filterable list.
 - **CRUD operations:** add, edit, delete and read notes, all persisted
 - **Dynamic lists with search:** `ListView.builder`/`separated` combined
   with live filtering by text and category
+- The detail screen reads the live note from the provider by id, so edits appear immediately.
+- Navigation uses named routes defined in MaterialApp (AppRoutes), with Provider for state management.
 
 ## Project Structure
 
@@ -45,6 +47,7 @@ lib/
 ├── main.dart
 ├── constants/
 │   └── app_constants.dart
+│   └── app_routes.dart
 ├── models/
 │   └── note_model.dart
 ├── providers/
@@ -84,11 +87,19 @@ lib/
 - `intl` — date formatting
 - `google_fonts` — typography
 
+## Prerequisites
+
+- [Flutter SDK](https://docs.flutter.dev/get-started/install) 3.38 or newer (Dart ^3.10.8)
+- VS Code or Android Studio with the Flutter plugin
+- An emulator, a physical device, or Chrome
+
+Run `flutter doctor` and fix anything it reports before continuing.
+
 ## Setup Instructions
 
 1. Clone the repository:
    ```bash
-   git clone <your-repo-url>
+   git clone https://github.com/noorfatima-0319/notes_manager.git
    cd notes_manager
    ```
 2. Install dependencies:

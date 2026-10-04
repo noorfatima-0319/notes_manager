@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../constants/app_constants.dart';
-import '../theme/app_theme.dart';
-import 'notes_list_screen.dart';
+import '../constants/app_routes.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -22,29 +21,28 @@ class _SplashScreenState extends State<SplashScreen> {
     });
     Future.delayed(const Duration(seconds: 2), () {
       if (!mounted) return;
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const NotesListScreen()),
-      );
+      Navigator.pushReplacementNamed(context, AppRoutes.home);
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: AppColors.iris,
       body: Stack(
         children: [
-          // faint decorative leaf icons in the corners
           Positioned(
             top: 40,
             left: -20,
-            child: Icon(Icons.eco_outlined, size: 140, color: AppColors.mist.withValues(alpha: 0.3)),
+            child: Icon(Icons.eco_outlined,
+                size: 140, color: colors.primary.withValues(alpha: 0.15)),
           ),
           Positioned(
             bottom: 40,
             right: -20,
-            child: Icon(Icons.eco_outlined, size: 160, color: AppColors.mist.withValues(alpha: 0.25)),
+            child: Icon(Icons.eco_outlined,
+                size: 160, color: colors.primary.withValues(alpha: 0.12)),
           ),
           Center(
             child: AnimatedOpacity(
@@ -57,25 +55,26 @@ class _SplashScreenState extends State<SplashScreen> {
                     width: 100,
                     height: 100,
                     decoration: BoxDecoration(
-                      color: AppColors.mist,
+                      color: colors.primary,
                       borderRadius: BorderRadius.circular(26),
                     ),
-                    child: const Icon(Icons.edit_note, size: 46, color: AppColors.charcoal),
+                    child: Icon(Icons.edit_note, size: 46, color: colors.onPrimary),
                   ),
                   const SizedBox(height: 24),
-                  const Text(
+                  Text(
                     AppConstants.appName,
                     style: TextStyle(
-                        fontSize: 28, fontWeight: FontWeight.w700, color: AppColors.mist),
+                        fontSize: 28, fontWeight: FontWeight.w700, color: colors.onSurface),
                   ),
                   const SizedBox(height: 10),
                   Text(
                     AppConstants.tagline,
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 14, color: AppColors.cream.withValues(alpha: 0.6)),
+                    style: TextStyle(
+                        fontSize: 14, color: colors.onSurface.withValues(alpha: 0.6)),
                   ),
                   const SizedBox(height: 32),
-                  Container(width: 60, height: 3, color: AppColors.mist),
+                  Container(width: 60, height: 3, color: colors.primary),
                 ],
               ),
             ),

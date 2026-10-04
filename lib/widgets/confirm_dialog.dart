@@ -61,7 +61,7 @@ class ConfirmDialog extends StatelessWidget {
             Expanded(
               child: FilledButton(
                 style: FilledButton.styleFrom(
-                  backgroundColor: AppColors.iris,
+                  backgroundColor: Theme.of(context).colorScheme.primary,
                   minimumSize: const Size(0, 46),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),

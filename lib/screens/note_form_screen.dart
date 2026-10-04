@@ -144,7 +144,7 @@ class _NoteFormScreenState extends State<NoteFormScreen> {
         TextSpan(
           text: text,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
-          children: const [TextSpan(text: ' *', style: TextStyle(color: Colors.red))],
+          children: [TextSpan(text: ' *', style: TextStyle(color: Theme.of(context).colorScheme.error))],
         ),
       ),
     );

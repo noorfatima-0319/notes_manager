@@ -21,6 +21,13 @@ class NotesProvider extends ChangeNotifier {
   SortOrder get sortOrder => _sortOrder;
   List<Note> get allNotes => List.unmodifiable(_notes);
 
+  Note? noteById(String id) {
+    for (final n in _notes) {
+      if (n.id == id) return n;
+    }
+    return null;
+  }
+
   // Home screen list: filtered by the selected category chip only.
   List<Note> get filteredNotes {
     List<Note> result = _categoryFilter == 'All'

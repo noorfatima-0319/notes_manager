@@ -7,8 +7,7 @@ import '../widgets/category_chips.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/note_card.dart';
 import '../widgets/confirm_dialog.dart';
-import 'note_detail_screen.dart';
-import 'note_form_screen.dart';
+import '../constants/app_routes.dart';
 import '../models/note_model.dart';
 
 // A dedicated full-screen search, separate from the Home list filter,
@@ -38,11 +37,9 @@ class _SearchScreenState extends State<SearchScreen> {
       message: 'Are you sure you want to delete this note? This action cannot be undone.',
       confirmLabel: 'Delete',
     );
-    if (confirmed) {
-      await context.read<NotesProvider>().deleteNote(note);
-      setState(() {});
+    if (!confirmed || !mounted) return;
+    await context.read<NotesProvider>().deleteNote(note);
     }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,10 +49,6 @@ class _SearchScreenState extends State<SearchScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
-        ),
         title: TextField(
           controller: _controller,
           autofocus: true,
@@ -117,18 +110,10 @@ class _SearchScreenState extends State<SearchScreen> {
                             return NoteCard(
                               note: note,
                               onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (_) => NoteDetailScreen(note: note)),
-                                );
+                                Navigator.pushNamed(context, AppRoutes.noteDetail, arguments: note.id);
                               },
                               onEdit: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (_) => NoteFormScreen(note: note)),
-                                );
+                                Navigator.pushNamed(context, AppRoutes.editNote, arguments: note);
                               },
                               onDelete: () => _delete(note),
                             );

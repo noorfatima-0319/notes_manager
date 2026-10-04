@@ -6,21 +6,20 @@ import '../models/note_model.dart';
 import '../providers/notes_provider.dart';
 import '../theme/app_theme.dart';
 import '../widgets/confirm_dialog.dart';
-import 'note_form_screen.dart';
-
+import '../constants/app_routes.dart';
 class NoteDetailScreen extends StatelessWidget {
-  final Note note;
+  final String noteId;
 
-  const NoteDetailScreen({super.key, required this.note});
+  const NoteDetailScreen({super.key, required this.noteId});
 
-  Future<void> _delete(BuildContext context) async {
+  Future<void> _delete(BuildContext context, Note note) async {
     final confirmed = await ConfirmDialog.show(
       context,
       title: 'Delete Note?',
       message: 'Are you sure you want to delete this note? This action cannot be undone.',
       confirmLabel: 'Delete',
     );
-    if (!confirmed) return;
+    if (!confirmed || !context.mounted) return;
 
     await context.read<NotesProvider>().deleteNote(note);
     if (context.mounted) Navigator.pop(context);
@@ -28,6 +27,9 @@ class NoteDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final note = context.watch<NotesProvider>().noteById(noteId);
+    if (note == null) return const Scaffold();
+
     final theme = Theme.of(context);
     final color = CategoryStyle.color(note.category);
     final icon = CategoryStyle.icon(note.category);
@@ -85,10 +87,7 @@ class NoteDetailScreen extends StatelessWidget {
                 Expanded(
                   child: OutlinedButton.icon(
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => NoteFormScreen(note: note)),
-                      );
+                      Navigator.pushNamed(context, AppRoutes.editNote, arguments: note);
                     },
                     icon: const Icon(Icons.edit_outlined),
                     label: const Text('Edit'),
@@ -98,7 +97,7 @@ class NoteDetailScreen extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: FilledButton.icon(
-                    onPressed: () => _delete(context),
+                    onPressed: () => _delete(context, note),
                     icon: const Icon(Icons.delete_outline),
                     label: const Text('Delete'),
                     style: FilledButton.styleFrom(

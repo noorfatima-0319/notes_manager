@@ -8,9 +8,7 @@ import '../widgets/category_chips.dart';
 import '../widgets/confirm_dialog.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/note_card.dart';
-import 'note_detail_screen.dart';
-import 'note_form_screen.dart';
-import 'search_screen.dart';
+import '../constants/app_routes.dart';
 
 class NotesListScreen extends StatelessWidget {
   const NotesListScreen({super.key});
@@ -22,9 +20,8 @@ class NotesListScreen extends StatelessWidget {
       message: 'Are you sure you want to delete this note? This action cannot be undone.',
       confirmLabel: 'Delete',
     );
-    if (confirmed) {
-      await context.read<NotesProvider>().deleteNote(note);
-    }
+    if (!confirmed || !context.mounted) return;
+    await context.read<NotesProvider>().deleteNote(note);
   }
 
   @override
@@ -48,10 +45,7 @@ class NotesListScreen extends StatelessWidget {
             tooltip: 'Search',
             icon: const Icon(Icons.search),
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const SearchScreen()),
-              );
+              Navigator.pushNamed(context, AppRoutes.search);
             },
           ),
           PopupMenuButton<String>(
@@ -78,13 +72,11 @@ class NotesListScreen extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: theme.colorScheme.primary,
+        foregroundColor: theme.colorScheme.onPrimary,
         onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const NoteFormScreen()),
-          );
+          Navigator.pushNamed(context, AppRoutes.addNote);
         },
-        child: const Icon(Icons.add, color: Colors.white),
+        child: const Icon(Icons.add),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -99,10 +91,7 @@ class NotesListScreen extends StatelessWidget {
             child: TextField(
               readOnly: true,
               onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const SearchScreen()),
-                );
+                Navigator.pushNamed(context, AppRoutes.search);
               },
               decoration: const InputDecoration(
                 hintText: 'Search notes...',
@@ -143,16 +132,10 @@ class NotesListScreen extends StatelessWidget {
                           return NoteCard(
                             note: note,
                             onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (_) => NoteDetailScreen(note: note)),
-                              );
+                              Navigator.pushNamed(context, AppRoutes.noteDetail, arguments: note.id);
                             },
                             onEdit: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (_) => NoteFormScreen(note: note)),
-                              );
+                              Navigator.pushNamed(context, AppRoutes.editNote, arguments: note);
                             },
                             onDelete: () => _delete(context, note),
                           );

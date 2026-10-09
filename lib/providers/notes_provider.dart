@@ -10,14 +10,14 @@ class NotesProvider extends ChangeNotifier {
   final NotesStorageService _storage = NotesStorageService();
 
   List<Note> _notes = [];
-  String _categoryFilter = 'All';
+  NoteCategory? _categoryFilter;
   SortOrder _sortOrder = SortOrder.newest;
   bool _isDarkMode = false;
   bool _isLoading = true;
 
   bool get isLoading => _isLoading;
   bool get isDarkMode => _isDarkMode;
-  String get categoryFilter => _categoryFilter;
+  NoteCategory? get categoryFilter => _categoryFilter;
   SortOrder get sortOrder => _sortOrder;
   List<Note> get allNotes => List.unmodifiable(_notes);
 
@@ -30,7 +30,7 @@ class NotesProvider extends ChangeNotifier {
 
   // Home screen list: filtered by the selected category chip only.
   List<Note> get filteredNotes {
-    List<Note> result = _categoryFilter == 'All'
+    List<Note> result = _categoryFilter == null
         ? List.of(_notes)
         : _notes.where((n) => n.category == _categoryFilter).toList();
     return _sorted(result);
@@ -38,8 +38,8 @@ class NotesProvider extends ChangeNotifier {
 
   // Used by the dedicated Search screen: filters by text AND an
   // independent category selection, regardless of the Home filter.
-  List<Note> search({required String query, String category = 'All'}) {
-    List<Note> result = category == 'All'
+  List<Note> search({required String query, NoteCategory? category}) {
+    List<Note> result = category == null
         ? List.of(_notes)
         : _notes.where((n) => n.category == category).toList();
 
@@ -69,16 +69,22 @@ class NotesProvider extends ChangeNotifier {
   }
 
   Future<void> load() async {
-    _notes = await _storage.loadNotes();
-    _isDarkMode = await _storage.loadDarkMode();
-    _isLoading = false;
-    notifyListeners();
+    try {
+      _notes = await _storage.loadNotes();
+      _isDarkMode = await _storage.loadDarkMode();
+    } catch (e) {
+      // storage was corrupted or unreadable — start fresh instead of crashing
+      _notes = [];
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 
   Future<void> addNote({
     required String title,
     required String content,
-    required String category,
+    required NoteCategory category,
   }) async {
     final now = DateTime.now();
     final note = Note(
@@ -98,7 +104,7 @@ class NotesProvider extends ChangeNotifier {
     Note note, {
     required String title,
     required String content,
-    required String category,
+    required NoteCategory category,
   }) async {
     final index = _notes.indexWhere((n) => n.id == note.id);
     if (index == -1) return;
@@ -119,7 +125,7 @@ class NotesProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setCategoryFilter(String category) {
+  void setCategoryFilter(NoteCategory? category) {
     _categoryFilter = category;
     notifyListeners();
   }

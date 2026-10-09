@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
+import 'package:provider/provider.dart';
+import '../models/note_model.dart';
+import '../providers/notes_provider.dart';
 
 // Reusable Yes/No confirmation dialog (used for delete).
 class ConfirmDialog extends StatelessWidget {
@@ -14,6 +17,20 @@ class ConfirmDialog extends StatelessWidget {
     required this.message,
     this.confirmLabel = 'Confirm',
   });
+
+  static Future<void> deleteNote(BuildContext context, Note note) async {
+    final confirmed = await show(context, title: 'Delete Note?',
+        message: 'Are you sure you want to delete this note? This action cannot be undone.',
+        confirmLabel: 'Delete');
+    if (!confirmed || !context.mounted) return;
+
+    await context.read<NotesProvider>().deleteNote(note);
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Note deleted')),
+      );
+    }
+  }
 
   static Future<bool> show(
     BuildContext context, {
@@ -61,7 +78,7 @@ class ConfirmDialog extends StatelessWidget {
             Expanded(
               child: FilledButton(
                 style: FilledButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  backgroundColor: AppColors.danger,
                   minimumSize: const Size(0, 46),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),

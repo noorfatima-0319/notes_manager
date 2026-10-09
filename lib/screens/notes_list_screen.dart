@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../constants/app_constants.dart';
 import '../models/note_model.dart';
 import '../providers/notes_provider.dart';
 import '../widgets/category_chips.dart';
@@ -12,17 +11,6 @@ import '../constants/app_routes.dart';
 
 class NotesListScreen extends StatelessWidget {
   const NotesListScreen({super.key});
-
-  Future<void> _delete(BuildContext context, Note note) async {
-    final confirmed = await ConfirmDialog.show(
-      context,
-      title: 'Delete Note?',
-      message: 'Are you sure you want to delete this note? This action cannot be undone.',
-      confirmLabel: 'Delete',
-    );
-    if (!confirmed || !context.mounted) return;
-    await context.read<NotesProvider>().deleteNote(note);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,15 +32,19 @@ class NotesListScreen extends StatelessWidget {
           IconButton(
             tooltip: 'Search',
             icon: const Icon(Icons.search),
-            onPressed: () {
-              Navigator.pushNamed(context, AppRoutes.search);
-            },
+            onPressed: () => Navigator.pushNamed(context, AppRoutes.search),
           ),
           PopupMenuButton<String>(
             icon: const Icon(Icons.more_vert),
             onSelected: (value) {
               if (value == 'theme') {
                 context.read<NotesProvider>().toggleDarkMode(!isDark);
+              } else if (value == 'sort_newest') {
+                context.read<NotesProvider>().setSortOrder(SortOrder.newest);
+              } else if (value == 'sort_oldest') {
+                context.read<NotesProvider>().setSortOrder(SortOrder.oldest);
+              } else if (value == 'sort_az') {
+                context.read<NotesProvider>().setSortOrder(SortOrder.titleAZ);
               }
             },
             itemBuilder: (context) => [
@@ -66,6 +58,10 @@ class NotesListScreen extends StatelessWidget {
                   ],
                 ),
               ),
+              const PopupMenuDivider(),
+              const PopupMenuItem(value: 'sort_newest', child: Text('Sort: Newest')),
+              const PopupMenuItem(value: 'sort_oldest', child: Text('Sort: Oldest')),
+              const PopupMenuItem(value: 'sort_az', child: Text('Sort: A - Z')),
             ],
           ),
         ],
@@ -85,7 +81,6 @@ class NotesListScreen extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
             child: Text('Keep your thoughts organized', style: theme.textTheme.bodyMedium),
           ),
-          // tapping opens the dedicated Search screen
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             child: TextField(
@@ -103,7 +98,6 @@ class NotesListScreen extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: CategoryChips(
-              categories: AppConstants.filterCategories,
               selected: provider.categoryFilter,
               onSelected: (category) => context.read<NotesProvider>().setCategoryFilter(category),
             ),
@@ -112,35 +106,35 @@ class NotesListScreen extends StatelessWidget {
           Expanded(
             child: !hasAnyNotes
                 ? const EmptyState(
-                      icon: Icons.note_add_outlined,
-                      title: 'No notes yet',
-                      subtitle:
-                          'Tap the + button to create your first note and start organizing your thoughts.',
-                    )
+              icon: Icons.note_add_outlined,
+              title: 'No notes yet',
+              subtitle:
+              'Tap the + button to create your first note and start organizing your thoughts.',
+            )
                 : notes.isEmpty
-                    ? const EmptyState(
-                        icon: Icons.filter_list_off,
-                        title: 'No notes in this category',
-                        subtitle: 'Try a different category or add a new note.',
-                      )
-                    : ListView.separated(
-                        padding: const EdgeInsets.fromLTRB(20, 0, 20, 90),
-                        itemCount: notes.length,
-                        separatorBuilder: (_, _) => const SizedBox(height: 12),
-                        itemBuilder: (context, index) {
-                          final note = notes[index];
-                          return NoteCard(
-                            note: note,
-                            onTap: () {
-                              Navigator.pushNamed(context, AppRoutes.noteDetail, arguments: note.id);
-                            },
-                            onEdit: () {
-                              Navigator.pushNamed(context, AppRoutes.editNote, arguments: note);
-                            },
-                            onDelete: () => _delete(context, note),
-                          );
-                        },
-                      ),
+                ? const EmptyState(
+              icon: Icons.filter_list_off,
+              title: 'No notes in this category',
+              subtitle: 'Try a different category or add a new note.',
+            )
+                : ListView.separated(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 90),
+              itemCount: notes.length,
+              separatorBuilder: (_, _) => const SizedBox(height: 12),
+              itemBuilder: (context, index) {
+                final note = notes[index];
+                return NoteCard(
+                  note: note,
+                  onTap: () {
+                    Navigator.pushNamed(context, AppRoutes.noteDetail, arguments: note.id);
+                  },
+                  onEdit: () {
+                    Navigator.pushNamed(context, AppRoutes.editNote, arguments: note);
+                  },
+                  onDelete: () => ConfirmDialog.deleteNote(context, note),
+                );
+              },
+            ),
           ),
         ],
       ),

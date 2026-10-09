@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../models/note_model.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 // Warm neutral palette from the latest reference design
@@ -79,31 +80,21 @@ class AppTheme {
 
 // Category -> (icon, color) used for note tiles throughout the app
 class CategoryStyle {
-  static IconData icon(String category) {
+  static IconData icon(NoteCategory category) {
     switch (category) {
-      case 'Work':
-        return Icons.work_outline;
-      case 'Study':
-        return Icons.menu_book_outlined;
-      case 'Other':
-        return Icons.label_outline;
-      case 'Personal':
-      default:
-        return Icons.lightbulb_outline;
+      case NoteCategory.work: return Icons.work_outline;
+      case NoteCategory.study: return Icons.menu_book_outlined;
+      case NoteCategory.other: return Icons.label_outline;
+      case NoteCategory.personal: return Icons.lightbulb_outline;
     }
   }
 
-  static Color color(String category) {
+  static Color color(NoteCategory category) {
     switch (category) {
-      case 'Work':
-        return AppColors.work;
-      case 'Study':
-        return AppColors.study;
-      case 'Other':
-        return AppColors.other;
-      case 'Personal':
-      default:
-        return AppColors.personal;
+      case NoteCategory.work: return AppColors.work;
+      case NoteCategory.study: return AppColors.study;
+      case NoteCategory.other: return AppColors.other;
+      case NoteCategory.personal: return AppColors.personal;
     }
   }
 }

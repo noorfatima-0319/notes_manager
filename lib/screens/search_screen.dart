@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../constants/app_constants.dart';
 import '../providers/notes_provider.dart';
 import '../widgets/category_chips.dart';
 import '../widgets/empty_state.dart';
@@ -22,7 +21,7 @@ class SearchScreen extends StatefulWidget {
 class _SearchScreenState extends State<SearchScreen> {
   final _controller = TextEditingController();
   String _query = '';
-  String _category = 'All';
+  NoteCategory? _category;
 
   @override
   void dispose() {
@@ -30,22 +29,12 @@ class _SearchScreenState extends State<SearchScreen> {
     super.dispose();
   }
 
-  Future<void> _delete(Note note) async {
-    final confirmed = await ConfirmDialog.show(
-      context,
-      title: 'Delete Note?',
-      message: 'Are you sure you want to delete this note? This action cannot be undone.',
-      confirmLabel: 'Delete',
-    );
-    if (!confirmed || !mounted) return;
-    await context.read<NotesProvider>().deleteNote(note);
-    }
 
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<NotesProvider>();
     final results = provider.search(query: _query, category: _category);
-    final isSearching = _query.trim().isNotEmpty || _category != 'All';
+    final isSearching = _query.trim().isNotEmpty || _category != null;
 
     return Scaffold(
       appBar: AppBar(
@@ -74,7 +63,6 @@ class _SearchScreenState extends State<SearchScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             CategoryChips(
-              categories: AppConstants.filterCategories,
               selected: _category,
               onSelected: (category) => setState(() => _category = category),
             ),
@@ -115,7 +103,7 @@ class _SearchScreenState extends State<SearchScreen> {
                               onEdit: () {
                                 Navigator.pushNamed(context, AppRoutes.editNote, arguments: note);
                               },
-                              onDelete: () => _delete(note),
+                              onDelete: () => ConfirmDialog.deleteNote(context, note),
                             );
                           },
                         ),

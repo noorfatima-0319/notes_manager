@@ -4,8 +4,7 @@ import 'package:intl/intl.dart';
 import '../models/note_model.dart';
 import '../theme/app_theme.dart';
 
-// One note in a list. Tap opens the detail view; the three-dot menu
-// gives quick Edit / Delete actions directly from the card.
+
 class NoteCard extends StatelessWidget {
   final Note note;
   final VoidCallback onTap;

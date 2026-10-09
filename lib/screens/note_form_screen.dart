@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
-import '../constants/app_constants.dart';
+import '../widgets/confirm_dialog.dart';
 import '../models/note_model.dart';
 import '../providers/notes_provider.dart';
 
-// Used for both Add and Edit. If [note] is null, it's Add mode.
+
 class NoteFormScreen extends StatefulWidget {
   final Note? note;
 
@@ -21,17 +20,17 @@ class _NoteFormScreenState extends State<NoteFormScreen> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _titleController;
   late final TextEditingController _contentController;
-  late String _category;
+  late NoteCategory _category;
 
   static const _titleMax = 100;
-  static const _contentMax = 500;
+  static const _contentMax = 2000;
 
   @override
   void initState() {
     super.initState();
     _titleController = TextEditingController(text: widget.note?.title ?? '');
     _contentController = TextEditingController(text: widget.note?.content ?? '');
-    _category = widget.note?.category ?? AppConstants.noteCategories.first;
+    _category = widget.note?.category ?? NoteCategory.personal;
   }
 
   @override
@@ -59,26 +58,42 @@ class _NoteFormScreenState extends State<NoteFormScreen> {
 
     final provider = context.read<NotesProvider>();
     if (widget.isEditing) {
-      await provider.updateNote(
-        widget.note!,
-        title: _titleController.text,
-        content: _contentController.text,
-        category: _category,
-      );
+      await provider.updateNote(widget.note!, title: _titleController.text,
+          content: _contentController.text, category: _category);
     } else {
-      await provider.addNote(
-        title: _titleController.text,
-        content: _contentController.text,
-        category: _category,
-      );
+      await provider.addNote(title: _titleController.text,
+          content: _contentController.text, category: _category);
     }
 
-    if (mounted) Navigator.pop(context);
+    if (mounted) {
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(widget.isEditing ? 'Note updated' : 'Note saved')),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        final hasChanges = _titleController.text.trim().isNotEmpty ||
+            _contentController.text.trim().isNotEmpty;
+        if (!hasChanges) {
+          if (context.mounted) Navigator.pop(context);
+          return;
+        }
+        final leave = await ConfirmDialog.show(
+          context,
+          title: 'Discard changes?',
+          message: 'You have unsaved changes. Are you sure you want to leave?',
+          confirmLabel: 'Discard',
+        );
+        if (leave && context.mounted) Navigator.pop(context);
+      },
+      child: Scaffold(
       appBar: AppBar(title: Text(widget.isEditing ? 'Edit Note' : 'Add Note')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
@@ -109,10 +124,10 @@ class _NoteFormScreenState extends State<NoteFormScreen> {
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
-                children: AppConstants.noteCategories.map((category) {
+                children: NoteCategory.values.map((category) {
                   final isSelected = category == _category;
                   return ChoiceChip(
-                    label: Text(category),
+                    label: Text(category.label),
                     selected: isSelected,
                     onSelected: (_) => setState(() => _category = category),
                   );
@@ -134,6 +149,7 @@ class _NoteFormScreenState extends State<NoteFormScreen> {
           ),
         ),
       ),
+    ),
     );
   }
 

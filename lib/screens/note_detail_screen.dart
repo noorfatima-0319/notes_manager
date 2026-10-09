@@ -12,23 +12,18 @@ class NoteDetailScreen extends StatelessWidget {
 
   const NoteDetailScreen({super.key, required this.noteId});
 
-  Future<void> _delete(BuildContext context, Note note) async {
-    final confirmed = await ConfirmDialog.show(
-      context,
-      title: 'Delete Note?',
-      message: 'Are you sure you want to delete this note? This action cannot be undone.',
-      confirmLabel: 'Delete',
-    );
-    if (!confirmed || !context.mounted) return;
-
-    await context.read<NotesProvider>().deleteNote(note);
-    if (context.mounted) Navigator.pop(context);
-  }
 
   @override
   Widget build(BuildContext context) {
     final note = context.watch<NotesProvider>().noteById(noteId);
-    if (note == null) return const Scaffold();
+    if (note == null) {
+      return Scaffold(
+        appBar: AppBar(),
+        body: const Center(
+          child: Text('Note not found'),
+        ),
+      );
+    }
 
     final theme = Theme.of(context);
     final color = CategoryStyle.color(note.category);
@@ -60,7 +55,7 @@ class NoteDetailScreen extends StatelessWidget {
                       child: Icon(icon, color: AppColors.charcoal),
                     ),
                     const Spacer(),
-                    Chip(label: Text(note.category)),
+                    Chip(label: Text(note.category.label)),
                   ],
                 ),
               ),
@@ -73,10 +68,22 @@ class NoteDetailScreen extends StatelessWidget {
             const SizedBox(height: 6),
             Row(
               children: [
-                Icon(Icons.calendar_today_outlined,
-                    size: 14, color: theme.colorScheme.onSurface.withValues(alpha: 0.6)),
+                Icon(Icons.calendar_today_outlined, size: 14,
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6)),
                 const SizedBox(width: 6),
-                Text(dateText, style: theme.textTheme.bodySmall),
+                Text('Updated: $dateText', style: theme.textTheme.bodySmall),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                Icon(Icons.schedule, size: 14,
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6)),
+                const SizedBox(width: 6),
+                Text(
+                  'Created: ${DateFormat('MMM d, yyyy').format(note.createdAt)}',
+                  style: theme.textTheme.bodySmall,
+                ),
               ],
             ),
             const SizedBox(height: 20),
@@ -97,7 +104,10 @@ class NoteDetailScreen extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: FilledButton.icon(
-                    onPressed: () => _delete(context, note),
+                    onPressed: () async {
+                      await ConfirmDialog.deleteNote(context, note);
+                      if (context.mounted) Navigator.pop(context);
+                    },
                     icon: const Icon(Icons.delete_outline),
                     label: const Text('Delete'),
                     style: FilledButton.styleFrom(
